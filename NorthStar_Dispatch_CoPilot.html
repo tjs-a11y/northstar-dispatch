@@ -1,0 +1,1989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>North Star — Dispatch Co-Pilot</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060810;
+  --surface: #0d1017;
+  --panel: #121620;
+  --card: #161b26;
+  --border: #1e2535;
+  --border-light: #252d3d;
+  --blue: #3B82F6;
+  --blue-dim: rgba(59,130,246,0.12);
+  --blue-glow: rgba(59,130,246,0.06);
+  --cyan: #06B6D4;
+  --cyan-dim: rgba(6,182,212,0.12);
+  --green: #10B981;
+  --green-dim: rgba(16,185,129,0.12);
+  --yellow: #F59E0B;
+  --yellow-dim: rgba(245,158,11,0.12);
+  --red: #EF4444;
+  --red-dim: rgba(239,68,68,0.12);
+  --purple: #8B5CF6;
+  --purple-dim: rgba(139,92,246,0.12);
+  --orange: #F97316;
+  --text: #E8EDF5;
+  --text-secondary: #7A8499;
+  --text-muted: #3D4557;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* HEADER */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 58px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-mark {
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(135deg, var(--blue), var(--cyan));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 0 20px rgba(59,130,246,0.3);
+}
+
+.logo-text {
+  font-family: 'Syne', sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: var(--text);
+}
+
+.logo-text span { color: var(--blue); }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-badge {
+  background: var(--blue-dim);
+  border: 1px solid rgba(59,130,246,0.25);
+  color: var(--blue);
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 100px;
+}
+
+.live-dot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.live-dot::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* LAYOUT */
+.app { max-width: 1080px; margin: 0 auto; padding: 20px 16px 80px; }
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+  flex: 1;
+  min-width: 100px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tab.active {
+  background: linear-gradient(135deg, var(--blue), var(--cyan));
+  color: white;
+  box-shadow: 0 2px 12px rgba(59,130,246,0.3);
+}
+
+.tab:not(.active):hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+/* SECTION */
+.section { display: none; }
+.section.active { display: block; }
+
+/* CARDS */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 16px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.card-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--blue);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* GRID */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* FIELDS */
+.field { display: flex; flex-direction: column; gap: 5px; }
+
+.field label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.field input, .field select {
+  background: var(--panel);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+
+.field input:focus, .field select:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+}
+
+.field input::placeholder { color: var(--text-muted); }
+.field select option { background: var(--panel); }
+
+/* RESULT PANELS */
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.result-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+}
+
+.result-box .r-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.result-box .r-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.r-value.blue { color: var(--blue); }
+.r-value.green { color: var(--green); }
+.r-value.yellow { color: var(--yellow); }
+.r-value.red { color: var(--red); }
+.r-value.cyan { color: var(--cyan); }
+.r-value.purple { color: var(--purple); }
+
+/* VERDICT BANNER */
+.verdict {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  margin-bottom: 14px;
+}
+
+.verdict.go { background: var(--green-dim); border: 1px solid rgba(16,185,129,0.3); }
+.verdict.warn { background: var(--yellow-dim); border: 1px solid rgba(245,158,11,0.3); }
+.verdict.stop { background: var(--red-dim); border: 1px solid rgba(239,68,68,0.3); }
+
+.verdict-icon { font-size: 24px; }
+.verdict-text { flex: 1; }
+.verdict-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; }
+.verdict-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+/* BUTTONS */
+.btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--blue), var(--cyan));
+  color: white;
+  box-shadow: 0 2px 12px rgba(59,130,246,0.25);
+}
+
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.btn-success {
+  background: linear-gradient(135deg, var(--green), #059669);
+  color: white;
+  box-shadow: 0 2px 12px rgba(16,185,129,0.25);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+}
+
+.btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+
+.btn-full { width: 100%; }
+
+/* DRIVER BOARD */
+.driver-row {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.driver-row:hover { border-color: var(--border-light); }
+
+.driver-row::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+
+.driver-row.available::before { background: var(--green); }
+.driver-row.loaded::before { background: var(--blue); }
+.driver-row.delivering::before { background: var(--yellow); }
+.driver-row.off::before { background: var(--text-muted); }
+
+.driver-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  color: white;
+  flex-shrink: 0;
+}
+
+.driver-info { min-width: 0; }
+.driver-name { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); }
+.driver-details { font-size: 12px; color: var(--text-secondary); margin-top: 2px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+.status-badge {
+  font-family: 'Syne', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+
+.status-badge.available { background: var(--green-dim); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+.status-badge.loaded { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+.status-badge.delivering { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(245,158,11,0.3); }
+.status-badge.off { background: var(--panel); color: var(--text-muted); border: 1px solid var(--border); }
+
+/* DETENTION */
+.det-row {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.det-info { flex: 1; }
+.det-load { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); }
+.det-meta { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+.det-amount { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--yellow); }
+
+/* INVOICE */
+.invoice-preview {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.invoice-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.invoice-company { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--blue); }
+.invoice-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+.invoice-number { text-align: right; }
+.invoice-num { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: var(--text); }
+
+.invoice-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.invoice-line .il-label { color: var(--text-secondary); }
+.invoice-line .il-value { font-weight: 600; color: var(--text); }
+
+.invoice-total {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 0 0;
+  margin-top: 4px;
+}
+
+.invoice-total .il-label { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); }
+.invoice-total .il-value { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--green); }
+
+/* CARRIER CHECK */
+.carrier-result {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.carrier-verdict {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.carrier-verdict.green { background: var(--green-dim); border: 1px solid rgba(16,185,129,0.3); }
+.carrier-verdict.yellow { background: var(--yellow-dim); border: 1px solid rgba(245,158,11,0.3); }
+.carrier-verdict.red { background: var(--red-dim); border: 1px solid rgba(239,68,68,0.3); }
+
+.cv-score {
+  font-family: 'Syne', sans-serif;
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* KPI CARDS */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.kpi-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-box::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+
+.kpi-box.blue::after { background: linear-gradient(90deg, var(--blue), var(--cyan)); }
+.kpi-box.green::after { background: var(--green); }
+.kpi-box.yellow::after { background: var(--yellow); }
+.kpi-box.red::after { background: var(--red); }
+.kpi-box.purple::after { background: var(--purple); }
+.kpi-box.cyan::after { background: var(--cyan); }
+
+.kpi-label { font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+.kpi-value { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: var(--text); line-height: 1; }
+.kpi-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+/* LANE HISTORY */
+.lane-row {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.lane-info { flex: 1; }
+.lane-route { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); }
+.lane-meta { font-size: 11px; color: var(--text-secondary); margin-top: 3px; display: flex; gap: 10px; flex-wrap: wrap; }
+.lane-rate { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--green); }
+
+/* EMPTY STATE */
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+.empty .e-icon { font-size: 40px; margin-bottom: 12px; }
+.empty h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; }
+.empty p { font-size: 13px; }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--green);
+  color: var(--bg);
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 12px 20px;
+  border-radius: 8px;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.3s;
+  z-index: 999;
+}
+
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* SCRIPT BOX */
+.script-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--green);
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+.script-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 8px;
+}
+
+.script-text {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.7;
+}
+
+/* BREAKDOWN */
+.breakdown {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 12px;
+}
+
+.breakdown-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.brow {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.brow:last-child { border-bottom: none; }
+.brow .bl { color: var(--text-secondary); }
+.brow .bv { font-weight: 600; font-family: 'Syne', sans-serif; font-size: 14px; }
+.brow.total .bl { color: var(--text); font-weight: 600; }
+.brow.total .bv { font-size: 16px; color: var(--text); }
+.brow.net .bl { color: var(--blue); font-weight: 700; }
+.brow.net .bv { font-size: 18px; color: var(--blue); }
+
+/* DELETE BTN */
+.del-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: color 0.2s;
+}
+.del-btn:hover { color: var(--red); }
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .app { padding: 14px 10px 60px; }
+  .kpi-value { font-size: 20px; }
+  .tabs { gap: 2px; }
+  .tab { min-width: 80px; font-size: 10px; padding: 8px 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-mark">📡</div>
+    <div class="logo-text">NORTH <span>STAR</span></div>
+  </div>
+  <div class="header-right">
+    <div class="live-dot">Live</div>
+    <div class="header-badge">Dispatch Co-Pilot</div>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('splitter')">💰 Load Splitter</button>
+    <button class="tab" onclick="switchTab('drivers')">👥 Driver Board</button>
+    <button class="tab" onclick="switchTab('detention')">⏱️ Detention</button>
+    <button class="tab" onclick="switchTab('lanes')">📊 Lane History</button>
+    <button class="tab" onclick="switchTab('invoice')">📄 Invoice</button>
+    <button class="tab" onclick="switchTab('carrier')">🔍 Carrier Check</button>
+    <button class="tab" onclick="switchTab('dashboard')">📈 Dashboard</button>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- TAB 1: LOAD PROFIT SPLITTER           -->
+  <!-- ══════════════════════════════════════ -->
+  <div id="tab-splitter" class="section active">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">💰 Load Profit Splitter</div>
+        <div style="font-size:11px;color:var(--text-secondary);">Know the driver's real net before you tender</div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-secondary);margin-bottom:12px;">⚙️ Your Dispatch Profile</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Your Dispatch % Cut</label>
+            <input type="number" id="sp-dispatch" value="10" min="0" max="30" step="0.5" oninput="calcSplit()">
+          </div>
+          <div class="field">
+            <label>Driver Factoring %</label>
+            <input type="number" id="sp-factoring" value="3" min="0" max="20" step="0.5" oninput="calcSplit()">
+          </div>
+          <div class="field">
+            <label>Diesel ($/gal)</label>
+            <input type="number" id="sp-diesel" value="5.35" min="0" step="0.01" oninput="calcSplit()">
+          </div>
+          <div class="field">
+            <label>Driver MPG</label>
+            <input type="number" id="sp-mpg" value="6.5" min="1" step="0.5" oninput="calcSplit()">
+          </div>
+        </div>
+      </div>
+
+      <!-- LOAD INPUT -->
+      <div class="form-grid">
+        <div class="field">
+          <label>Origin</label>
+          <input type="text" id="sp-origin" placeholder="Atlanta, GA" oninput="calcSplit()">
+        </div>
+        <div class="field">
+          <label>Destination</label>
+          <input type="text" id="sp-dest" placeholder="Seattle, WA" oninput="calcSplit()">
+        </div>
+        <div class="field">
+          <label>Broker Offer ($)</label>
+          <input type="number" id="sp-rate" placeholder="0" oninput="calcSplit()">
+        </div>
+        <div class="field">
+          <label>Loaded Miles</label>
+          <input type="number" id="sp-miles" placeholder="0" oninput="calcSplit()">
+        </div>
+        <div class="field">
+          <label>Deadhead Miles</label>
+          <input type="number" id="sp-dh" placeholder="0" oninput="calcSplit()">
+        </div>
+        <div class="field">
+          <label>Driver Name</label>
+          <input type="text" id="sp-driver" placeholder="Optional" oninput="calcSplit()">
+        </div>
+      </div>
+
+      <!-- VERDICT -->
+      <div id="sp-verdict" style="display:none;">
+        <div id="sp-verdict-box" class="verdict go">
+          <div class="verdict-icon" id="sp-verdict-icon">✅</div>
+          <div class="verdict-text">
+            <div class="verdict-title" id="sp-verdict-title">Take This Load</div>
+            <div class="verdict-sub" id="sp-verdict-sub">Load is profitable for your driver</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;" id="sp-driver-net">—</div>
+            <div style="font-size:11px;color:var(--text-secondary);">Driver Net</div>
+          </div>
+        </div>
+
+        <div class="result-grid">
+          <div class="result-box">
+            <div class="r-label">Broker Offer</div>
+            <div class="r-value blue" id="sp-r-gross">—</div>
+          </div>
+          <div class="result-box">
+            <div class="r-label">Your Cut</div>
+            <div class="r-value yellow" id="sp-r-your">—</div>
+          </div>
+          <div class="result-box">
+            <div class="r-label">Driver Net</div>
+            <div class="r-value green" id="sp-r-driver">—</div>
+          </div>
+          <div class="result-box">
+            <div class="r-label">Net/Loaded Mi</div>
+            <div class="r-value cyan" id="sp-r-npm">—</div>
+          </div>
+          <div class="result-box">
+            <div class="r-label">Gross/Mile</div>
+            <div class="r-value blue" id="sp-r-gpm">—</div>
+          </div>
+          <div class="result-box">
+            <div class="r-label">Fuel Cost</div>
+            <div class="r-value red" id="sp-r-fuel">—</div>
+          </div>
+        </div>
+
+        <div class="breakdown">
+          <div class="breakdown-title">Full Breakdown</div>
+          <div class="brow"><span class="bl">Broker Offer</span><span class="bv" id="bp-gross" style="color:var(--text)">—</span></div>
+          <div class="brow"><span class="bl" id="bp-your-label">Your Dispatch Cut</span><span class="bv" style="color:var(--yellow)" id="bp-your">—</span></div>
+          <div class="brow"><span class="bl">Driver Factoring</span><span class="bv" style="color:var(--red)" id="bp-fact">—</span></div>
+          <div class="brow"><span class="bl">Fuel Cost</span><span class="bv" style="color:var(--red)" id="bp-fuel">—</span></div>
+          <div class="brow total"><span class="bl">Total Deductions</span><span class="bv" id="bp-total">—</span></div>
+          <div class="brow net"><span class="bl">Driver Net</span><span class="bv" id="bp-net">—</span></div>
+        </div>
+
+        <div id="sp-script" class="script-box" style="display:none;">
+          <div class="script-label">💬 Negotiation Script — Copy & Send to Broker</div>
+          <div class="script-text" id="sp-script-text"></div>
+          <button class="btn btn-outline" style="margin-top:10px;font-size:11px;" onclick="copyNegScript()">📋 Copy Script</button>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="saveToLanes()" id="sp-save-btn">💾 Save to Lane History</button>
+          <button class="btn btn-success" onclick="sendToInvoice()" id="sp-invoice-btn">📄 Send to Invoice</button>
+        </div>
+      </div>
+
+      <div id="sp-empty" style="text-align:center;padding:30px;color:var(--text-muted);">
+        <div style="font-size:36px;margin-bottom:12px;">💰</div>
+        <div style="font-family:'Syne',sans-serif;font-size:14px;color:var(--text-secondary);">Enter load details above to see the profit split instantly</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- TAB 2: DRIVER BOARD                   -->
+  <!-- ══════════════════════════════════════ -->
+  <div id="tab-drivers" class="section">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">👥 Add Driver</div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Driver Name</label>
+          <input type="text" id="dr-name" placeholder="Full name">
+        </div>
+        <div class="field">
+          <label>Equipment Type</label>
+          <select id="dr-equip">
+            <option>53ft Dry Van</option>
+            <option>26ft Box Truck</option>
+            <option>Hotshot</option>
+            <option>Reefer</option>
+            <option>Flatbed</option>
+            <option>Step Deck</option>
+            <option>Power Only</option>
+            <option>Cargo Van</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select id="dr-status">
+            <option value="available">✅ Available</option>
+            <option value="loaded">🔵 Loaded — In Transit</option>
+            <option value="delivering">🟡 Delivering</option>
+            <option value="off">⚫ Off Duty</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Current Load / Notes</label>
+          <input type="text" id="dr-load" placeholder="e.g. Atlanta → Seattle, ETA Fri">
+        </div>
+        <div class="field">
+          <label>Next Available</label>
+          <input type="date" id="dr-available">
+        </div>
+        <div class="field">
+          <label>Phone</label>
+          <input type="tel" id="dr-phone" placeholder="Optional">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="addDriver()">➕ Add Driver to Board</button>
+    </div>
+
+    <div id="driver-board">
+      <div class="empty">
+        <div class="e-icon">👥</div>
+        <h3>No Drivers Yet</h3>
+        <p>Add your first driver to start tracking your board.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- TAB 3: DETENTION TRACKER              -->
+  <!-- ══════════════════════════════════════ -->
+  <div id="tab-detention" class="section">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">⏱️ Log Detention / Accessorial</div>
+        <div style="font-size:11px;color:var(--text-secondary);">Never lose a billable hour again</div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Load / Reference #</label>
+          <input type="text" id="det-load" placeholder="e.g. Load #4821">
+        </div>
+        <div class="field">
+          <label>Driver Name</label>
+          <input type="text" id="det-driver" placeholder="Driver name">
+        </div>
+        <div class="field">
+          <label>Type</label>
+          <select id="det-type" onchange="calcDetention()">
+            <option value="detention">⏱️ Detention</option>
+            <option value="lumper">💪 Lumper Fee</option>
+            <option value="layover">🌙 Layover</option>
+            <option value="tonu">❌ TONU</option>
+            <option value="other">📋 Other Accessorial</option>
+          </select>
+        </div>
+        <div class="field" id="det-time-fields">
+          <label>Start Time</label>
+          <input type="time" id="det-start" oninput="calcDetention()">
+        </div>
+        <div class="field" id="det-end-field">
+          <label>End Time</label>
+          <input type="time" id="det-end" oninput="calcDetention()">
+        </div>
+        <div class="field">
+          <label>Rate / Amount ($)</label>
+          <input type="number" id="det-rate" placeholder="e.g. 75" oninput="calcDetention()">
+        </div>
+        <div class="field">
+          <label>Free Time (hrs)</label>
+          <input type="number" id="det-free" value="2" min="0" step="0.5" oninput="calcDetention()">
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="det-date">
+        </div>
+      </div>
+
+      <div id="det-calc" style="display:none;margin-bottom:14px;">
+        <div class="result-grid" style="margin-bottom:0;">
+          <div class="result-box">
+            <div class="r-label">Hours Detained</div>
+            <div class="r-value yellow" id="det-hours">0</div>
+          </div>
+          <div class="result-box">
+            <div class="r-label">Billable Hours</div>
+            <div class="r-value blue" id="det-billable">0</div>
+          </div>
+          <div class="result-box">
+            <div class="r-label">Amount Owed</div>
+            <div class="r-value green" id="det-amount">$0</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-full" onclick="saveDetention()">💾 Save Accessorial</button>
+    </div>
+
+    <!-- UNCOLLECTED -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">💰 Uncollected Accessorials</div>
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--yellow);" id="det-total-display">$0</div>
+      </div>
+      <div id="det-list">
+        <div class="empty">
+          <div class="e-icon">⏱️</div>
+          <h3>No Accessorials Logged</h3>
+          <p>Log your first detention or accessorial above.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- TAB 4: LANE HISTORY                   -->
+  <!-- ══════════════════════════════════════ -->
+  <div id="tab-lanes" class="section">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📊 Lane Rate Intelligence</div>
+        <div style="font-size:11px;color:var(--text-secondary);">Built from your own load history</div>
+      </div>
+
+      <div id="lane-stats" style="margin-bottom:16px;display:none;">
+        <div class="kpi-row">
+          <div class="kpi-box blue">
+            <div class="kpi-label">Lanes Tracked</div>
+            <div class="kpi-value" id="lane-count">0</div>
+          </div>
+          <div class="kpi-box green">
+            <div class="kpi-label">Avg Gross/Mile</div>
+            <div class="kpi-value" id="lane-avg-rpm">$0.00</div>
+          </div>
+          <div class="kpi-box yellow">
+            <div class="kpi-label">Best Rate</div>
+            <div class="kpi-value" id="lane-best">$0</div>
+          </div>
+          <div class="kpi-box purple">
+            <div class="kpi-label">Total Volume</div>
+            <div class="kpi-value" id="lane-volume">$0</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-size:11px;color:var(--text-secondary);">Sorted by most recent</div>
+        <button class="btn btn-outline" onclick="clearLanes()" style="font-size:10px;padding:6px 12px;">🗑 Clear All</button>
+      </div>
+
+      <div id="lane-list">
+        <div class="empty">
+          <div class="e-icon">📊</div>
+          <h3>No Lane History Yet</h3>
+          <p>Save loads from the Load Splitter tab to build your lane intelligence database.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- TAB 5: INVOICE GENERATOR              -->
+  <!-- ══════════════════════════════════════ -->
+  <div id="tab-invoice" class="section">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📄 Invoice Generator</div>
+        <div style="font-size:11px;color:var(--text-secondary);">Professional invoices in 60 seconds</div>
+      </div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Your Company Name</label>
+          <input type="text" id="inv-company" placeholder="North Star Logistics" oninput="updateInvoice()">
+        </div>
+        <div class="field">
+          <label>Invoice Number</label>
+          <input type="text" id="inv-number" oninput="updateInvoice()">
+        </div>
+        <div class="field">
+          <label>Bill To (Broker/Shipper)</label>
+          <input type="text" id="inv-billto" placeholder="Broker Company Name" oninput="updateInvoice()">
+        </div>
+        <div class="field">
+          <label>Load Date</label>
+          <input type="date" id="inv-date" oninput="updateInvoice()">
+        </div>
+        <div class="field">
+          <label>Origin</label>
+          <input type="text" id="inv-origin" placeholder="Atlanta, GA" oninput="updateInvoice()">
+        </div>
+        <div class="field">
+          <label>Destination</label>
+          <input type="text" id="inv-dest" placeholder="Seattle, WA" oninput="updateInvoice()">
+        </div>
+        <div class="field">
+          <label>Freight Rate ($)</label>
+          <input type="number" id="inv-rate" placeholder="0.00" oninput="updateInvoice()">
+        </div>
+        <div class="field">
+          <label>Detention ($)</label>
+          <input type="number" id="inv-detention" placeholder="0.00" value="0" oninput="updateInvoice()">
+        </div>
+        <div class="field">
+          <label>Lumper Fee ($)</label>
+          <input type="number" id="inv-lumper" placeholder="0.00" value="0" oninput="updateInvoice()">
+        </div>
+        <div class="field">
+          <label>Other Accessorial ($)</label>
+          <input type="number" id="inv-other" placeholder="0.00" value="0" oninput="updateInvoice()">
+        </div>
+        <div class="field">
+          <label>Payment Terms</label>
+          <select id="inv-terms" onchange="updateInvoice()">
+            <option>Quick Pay — 24 hours</option>
+            <option>Net 15</option>
+            <option>Net 30</option>
+            <option>Net 45</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Driver / Unit #</label>
+          <input type="text" id="inv-driver" placeholder="Optional" oninput="updateInvoice()">
+        </div>
+      </div>
+
+      <!-- INVOICE PREVIEW -->
+      <div class="invoice-preview" id="invoice-preview">
+        <div class="invoice-header-row">
+          <div>
+            <div class="invoice-company" id="inv-prev-company">Your Company Name</div>
+            <div class="invoice-label">Freight Invoice</div>
+          </div>
+          <div class="invoice-number">
+            <div class="invoice-num" id="inv-prev-number">#—</div>
+            <div class="invoice-label" id="inv-prev-date">Date: —</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+          <div>
+            <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Bill To</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);" id="inv-prev-billto">—</div>
+          </div>
+          <div>
+            <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Load Details</div>
+            <div style="font-size:13px;color:var(--text-secondary);" id="inv-prev-route">—</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px;" id="inv-prev-driver"></div>
+          </div>
+        </div>
+
+        <div id="inv-prev-lines"></div>
+        <div class="invoice-total">
+          <span class="il-label">TOTAL DUE</span>
+          <span class="il-value" id="inv-prev-total">$0.00</span>
+        </div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--text-muted);">
+          Payment Terms: <span id="inv-prev-terms" style="color:var(--text-secondary);">—</span> &nbsp;·&nbsp; Thank you for your business.
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="copyInvoice()">📋 Copy Invoice Text</button>
+        <button class="btn btn-outline" onclick="clearInvoice()">🗑 Clear</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- TAB 6: CARRIER QUICK CHECK            -->
+  <!-- ══════════════════════════════════════ -->
+  <div id="tab-carrier" class="section">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🔍 Carrier Quick Check</div>
+        <div style="font-size:11px;color:var(--text-secondary);">Vet any carrier in seconds</div>
+      </div>
+
+      <div class="form-grid" style="margin-bottom:16px;">
+        <div class="field">
+          <label>MC Number</label>
+          <input type="text" id="cc-mc" placeholder="e.g. 1234567">
+        </div>
+        <div class="field">
+          <label>DOT Number</label>
+          <input type="text" id="cc-dot" placeholder="e.g. 4572562">
+        </div>
+        <div class="field">
+          <label>Carrier Name</label>
+          <input type="text" id="cc-name" placeholder="Company name">
+        </div>
+        <div class="field">
+          <label>Authority Age (months)</label>
+          <input type="number" id="cc-age" placeholder="e.g. 18" min="0">
+        </div>
+        <div class="field">
+          <label>Insurance on File</label>
+          <select id="cc-insurance">
+            <option value="yes">✅ Yes — Verified</option>
+            <option value="no">❌ No / Unverified</option>
+            <option value="pending">⏳ Pending</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Safety Rating</label>
+          <select id="cc-safety">
+            <option value="satisfactory">✅ Satisfactory</option>
+            <option value="conditional">⚠️ Conditional</option>
+            <option value="unsatisfactory">❌ Unsatisfactory</option>
+            <option value="none">📋 Not Rated</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Authority Status</label>
+          <select id="cc-authority">
+            <option value="active">✅ Active</option>
+            <option value="pending">⏳ Pending</option>
+            <option value="inactive">❌ Inactive / Revoked</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Fraud Flags</label>
+          <select id="cc-fraud">
+            <option value="none">✅ None Known</option>
+            <option value="new">⚠️ Very New Authority</option>
+            <option value="reported">🔴 Reported Issues</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-full" onclick="checkCarrier()" style="margin-bottom:16px;">🔍 Run Carrier Check</button>
+
+      <div id="carrier-result" style="display:none;">
+        <div id="cc-verdict-box" class="carrier-verdict green">
+          <div class="cv-score" id="cc-score">85</div>
+          <div>
+            <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;" id="cc-verdict-title">Low Risk</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;" id="cc-verdict-sub">Carrier appears legitimate. Standard onboarding.</div>
+          </div>
+          <div id="cc-verdict-badge" class="status-badge available" style="margin-left:auto;">✅ APPROVED</div>
+        </div>
+
+        <div id="cc-flags-list" style="margin-bottom:14px;"></div>
+
+        <div class="breakdown">
+          <div class="breakdown-title">Carrier Profile Summary</div>
+          <div class="brow"><span class="bl">Carrier Name</span><span class="bv" id="cc-r-name" style="color:var(--text)">—</span></div>
+          <div class="brow"><span class="bl">MC Number</span><span class="bv" id="cc-r-mc" style="color:var(--text)">—</span></div>
+          <div class="brow"><span class="bl">DOT Number</span><span class="bv" id="cc-r-dot" style="color:var(--text)">—</span></div>
+          <div class="brow"><span class="bl">Authority Age</span><span class="bv" id="cc-r-age" style="color:var(--text)">—</span></div>
+          <div class="brow"><span class="bl">Authority Status</span><span class="bv" id="cc-r-auth">—</span></div>
+          <div class="brow"><span class="bl">Insurance</span><span class="bv" id="cc-r-ins">—</span></div>
+          <div class="brow"><span class="bl">Safety Rating</span><span class="bv" id="cc-r-safety">—</span></div>
+          <div class="brow net"><span class="bl">Risk Score</span><span class="bv" id="cc-r-score">—</span></div>
+        </div>
+
+        <button class="btn btn-primary" style="margin-top:12px;" onclick="saveCarrierCheck()">💾 Save to Carrier Log</button>
+      </div>
+
+      <!-- SAVED CARRIERS -->
+      <div style="margin-top:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue);font-family:'Syne',sans-serif;">Carrier Log</div>
+          <button class="btn btn-outline" onclick="clearCarriers()" style="font-size:10px;padding:5px 10px;">🗑 Clear</button>
+        </div>
+        <div id="carrier-log">
+          <div class="empty" style="padding:20px;">
+            <div class="e-icon">🔍</div>
+            <h3>No Carriers Saved</h3>
+            <p>Run a carrier check and save it to build your approved carrier log.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- TAB 7: DASHBOARD                      -->
+  <!-- ══════════════════════════════════════ -->
+  <div id="tab-dashboard" class="section">
+
+    <div class="kpi-row">
+      <div class="kpi-box blue">
+        <div class="kpi-label">Total Loads Split</div>
+        <div class="kpi-value" id="dash-loads">0</div>
+        <div class="kpi-sub">Saved to lanes</div>
+      </div>
+      <div class="kpi-box green">
+        <div class="kpi-label">Total Volume</div>
+        <div class="kpi-value" id="dash-volume">$0</div>
+        <div class="kpi-sub">Gross freight value</div>
+      </div>
+      <div class="kpi-box yellow">
+        <div class="kpi-label">Your Earnings</div>
+        <div class="kpi-value" id="dash-earnings">$0</div>
+        <div class="kpi-sub">Your dispatch cuts</div>
+      </div>
+      <div class="kpi-box red">
+        <div class="kpi-label">Uncollected</div>
+        <div class="kpi-value" id="dash-uncollected">$0</div>
+        <div class="kpi-sub">Detention & accessorials</div>
+      </div>
+      <div class="kpi-box purple">
+        <div class="kpi-label">Active Drivers</div>
+        <div class="kpi-value" id="dash-drivers">0</div>
+        <div class="kpi-sub">On your board</div>
+      </div>
+      <div class="kpi-box cyan">
+        <div class="kpi-label">Carriers Vetted</div>
+        <div class="kpi-value" id="dash-carriers">0</div>
+        <div class="kpi-sub">In your log</div>
+      </div>
+    </div>
+
+    <!-- DRIVER STATUS SUMMARY -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <div class="card-title">👥 Driver Status Summary</div>
+      </div>
+      <div id="dash-driver-summary">
+        <div class="empty" style="padding:20px;">
+          <div class="e-icon">👥</div>
+          <h3>No Drivers Added</h3>
+          <p>Add drivers in the Driver Board tab.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOP LANES -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🏆 Top Performing Lanes</div>
+      </div>
+      <div id="dash-top-lanes">
+        <div class="empty" style="padding:20px;">
+          <div class="e-icon">📊</div>
+          <h3>No Lane Data Yet</h3>
+          <p>Save loads from the Load Splitter to see your top lanes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ Saved!</div>
+
+<script>
+// ── STATE ──
+let lanes = JSON.parse(localStorage.getItem('ns_lanes') || '[]');
+let drivers = JSON.parse(localStorage.getItem('ns_drivers') || '[]');
+let detentions = JSON.parse(localStorage.getItem('ns_detentions') || '[]');
+let carriers = JSON.parse(localStorage.getItem('ns_carriers') || '[]');
+
+// Set defaults
+document.getElementById('det-date').valueAsDate = new Date();
+document.getElementById('inv-date').valueAsDate = new Date();
+document.getElementById('inv-number').value = 'INV-' + Date.now().toString().slice(-6);
+
+const avatarColors = ['#3B82F6','#10B981','#F59E0B','#EF4444','#8B5CF6','#F97316','#06B6D4','#EC4899'];
+
+// ── HELPERS ──
+function fmt(n, d=0) {
+  if (isNaN(n)) return '—';
+  const abs = Math.abs(n);
+  const s = abs.toLocaleString('en-US', {minimumFractionDigits:d, maximumFractionDigits:d});
+  return (n<0?'-$':'$') + s;
+}
+
+function showToast(msg, color='var(--green)') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = color;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── TAB SWITCHING ──
+function switchTab(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'drivers') renderDriverBoard();
+  if (name === 'detention') renderDetentionList();
+  if (name === 'lanes') renderLanes();
+  if (name === 'carrier') renderCarrierLog();
+  if (name === 'dashboard') renderDashboard();
+}
+
+// ── LOAD PROFIT SPLITTER ──
+function calcSplit() {
+  const rate = parseFloat(document.getElementById('sp-rate').value) || 0;
+  const miles = parseFloat(document.getElementById('sp-miles').value) || 0;
+  const dh = parseFloat(document.getElementById('sp-dh').value) || 0;
+  const dispatchPct = parseFloat(document.getElementById('sp-dispatch').value) || 0;
+  const factoringPct = parseFloat(document.getElementById('sp-factoring').value) || 0;
+  const diesel = parseFloat(document.getElementById('sp-diesel').value) || 5.35;
+  const mpg = parseFloat(document.getElementById('sp-mpg').value) || 6.5;
+  const origin = document.getElementById('sp-origin').value;
+  const dest = document.getElementById('sp-dest').value;
+
+  document.getElementById('bp-your-label').textContent = `Your Dispatch Cut (${dispatchPct}%)`;
+
+  if (!rate || !miles) {
+    document.getElementById('sp-verdict').style.display = 'none';
+    document.getElementById('sp-empty').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('sp-verdict').style.display = 'block';
+  document.getElementById('sp-empty').style.display = 'none';
+
+  const totalMiles = miles + dh;
+  const yourCut = rate * (dispatchPct / 100);
+  const factoringAmt = rate * (factoringPct / 100);
+  const fuelCost = (diesel / mpg) * totalMiles;
+  const totalDed = yourCut + factoringAmt + fuelCost;
+  const driverNet = rate - totalDed;
+  const netPerMile = miles > 0 ? driverNet / miles : 0;
+  const grossPerMile = miles > 0 ? rate / miles : 0;
+
+  // Verdict
+  let vClass, vIcon, vTitle, vSub;
+  if (driverNet > 0 && netPerMile >= 0.75) {
+    vClass = 'go'; vIcon = '✅'; vTitle = 'Take This Load'; vSub = 'Strong profit for your driver — good load to tender';
+  } else if (driverNet > 0 && netPerMile >= 0.40) {
+    vClass = 'warn'; vIcon = '⚠️'; vTitle = 'Marginal — Consider Negotiating'; vSub = 'Driver will profit but margin is thin — push for a higher rate';
+  } else if (driverNet > 0) {
+    vClass = 'warn'; vIcon = '⚠️'; vTitle = 'Thin Margin'; vSub = 'Driver nets very little — negotiate before tendering';
+  } else {
+    vClass = 'stop'; vIcon = '❌'; vTitle = 'Do Not Tender at This Rate'; vSub = 'Driver loses money at this rate — must negotiate up';
+  }
+
+  const vBox = document.getElementById('sp-verdict-box');
+  vBox.className = 'verdict ' + vClass;
+  document.getElementById('sp-verdict-icon').textContent = vIcon;
+  document.getElementById('sp-verdict-title').textContent = vTitle;
+  document.getElementById('sp-verdict-sub').textContent = vSub;
+
+  const netEl = document.getElementById('sp-driver-net');
+  netEl.textContent = fmt(driverNet);
+  netEl.style.color = driverNet > 0 ? 'var(--green)' : 'var(--red)';
+
+  document.getElementById('sp-r-gross').textContent = fmt(rate);
+  document.getElementById('sp-r-your').textContent = fmt(yourCut);
+  document.getElementById('sp-r-driver').textContent = fmt(driverNet);
+  document.getElementById('sp-r-driver').style.color = driverNet > 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('sp-r-npm').textContent = fmt(netPerMile, 2);
+  document.getElementById('sp-r-npm').style.color = netPerMile >= 0.75 ? 'var(--green)' : netPerMile >= 0.40 ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('sp-r-gpm').textContent = fmt(grossPerMile, 2);
+  document.getElementById('sp-r-fuel').textContent = fmt(fuelCost);
+
+  document.getElementById('bp-gross').textContent = fmt(rate);
+  document.getElementById('bp-your').textContent = '-' + fmt(yourCut);
+  document.getElementById('bp-fact').textContent = '-' + fmt(factoringAmt);
+  document.getElementById('bp-fuel').textContent = '-' + fmt(fuelCost);
+  document.getElementById('bp-total').textContent = fmt(totalDed);
+  document.getElementById('bp-net').textContent = fmt(driverNet);
+  document.getElementById('bp-net').style.color = driverNet >= 0 ? 'var(--green)' : 'var(--red)';
+
+  // Negotiation script
+  const scriptBox = document.getElementById('sp-script');
+  if (driverNet < 0 || netPerMile < 0.75) {
+    const neededRate = (totalDed / (1 - (dispatchPct + factoringPct) / 100));
+    const targetRate = Math.ceil(neededRate / 50) * 50;
+    scriptBox.style.display = 'block';
+    document.getElementById('sp-script-text').innerHTML = `"Hi, regarding this ${origin ? origin + ' to ' + dest : 'load'} — at ${miles.toLocaleString()} loaded miles with current diesel at $${diesel}/gal, my driver's break-even is <strong style='color:var(--yellow)'>${fmt(neededRate)}</strong>. To make this worth running I need a minimum of <strong style='color:var(--green)'>${fmt(targetRate)}</strong>. Can you get me there?"`;
+  } else {
+    scriptBox.style.display = 'none';
+  }
+}
+
+function copyNegScript() {
+  const text = document.getElementById('sp-script-text').innerText;
+  navigator.clipboard.writeText(text).then(() => showToast('📋 Script Copied!', 'var(--green)'));
+}
+
+function saveToLanes() {
+  const rate = parseFloat(document.getElementById('sp-rate').value) || 0;
+  const miles = parseFloat(document.getElementById('sp-miles').value) || 0;
+  const dh = parseFloat(document.getElementById('sp-dh').value) || 0;
+  const origin = document.getElementById('sp-origin').value || 'Origin';
+  const dest = document.getElementById('sp-dest').value || 'Destination';
+  const dispatchPct = parseFloat(document.getElementById('sp-dispatch').value) || 0;
+  const diesel = parseFloat(document.getElementById('sp-diesel').value) || 5.35;
+  const mpg = parseFloat(document.getElementById('sp-mpg').value) || 6.5;
+  const driver = document.getElementById('sp-driver').value;
+
+  if (!rate || !miles) return;
+
+  const totalMiles = miles + dh;
+  const yourCut = rate * (dispatchPct / 100);
+  const factoringAmt = rate * 0.03;
+  const fuelCost = (diesel / mpg) * totalMiles;
+  const driverNet = rate - yourCut - factoringAmt - fuelCost;
+  const gpm = rate / miles;
+
+  const lane = {
+    id: Date.now(),
+    origin, dest, rate, miles, dh,
+    yourCut, driverNet, gpm,
+    driver,
+    date: new Date().toISOString().split('T')[0],
+  };
+
+  lanes.unshift(lane);
+  localStorage.setItem('ns_lanes', JSON.stringify(lanes));
+  showToast('✅ Saved to Lane History!');
+}
+
+function sendToInvoice() {
+  const rate = document.getElementById('sp-rate').value;
+  const origin = document.getElementById('sp-origin').value;
+  const dest = document.getElementById('sp-dest').value;
+  const driver = document.getElementById('sp-driver').value;
+
+  if (rate) document.getElementById('inv-rate').value = rate;
+  if (origin) document.getElementById('inv-origin').value = origin;
+  if (dest) document.getElementById('inv-dest').value = dest;
+  if (driver) document.getElementById('inv-driver').value = driver;
+
+  updateInvoice();
+
+  // Switch to invoice tab
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-invoice').classList.add('active');
+  document.querySelectorAll('.tab')[4].classList.add('active');
+  showToast('📄 Load sent to Invoice tab!', 'var(--blue)');
+}
+
+// ── DRIVER BOARD ──
+function addDriver() {
+  const name = document.getElementById('dr-name').value.trim();
+  if (!name) { alert('Please enter a driver name.'); return; }
+
+  const driver = {
+    id: Date.now(),
+    name,
+    equip: document.getElementById('dr-equip').value,
+    status: document.getElementById('dr-status').value,
+    load: document.getElementById('dr-load').value,
+    available: document.getElementById('dr-available').value,
+    phone: document.getElementById('dr-phone').value,
+    color: avatarColors[drivers.length % avatarColors.length],
+  };
+
+  drivers.push(driver);
+  localStorage.setItem('ns_drivers', JSON.stringify(drivers));
+  document.getElementById('dr-name').value = '';
+  document.getElementById('dr-load').value = '';
+  document.getElementById('dr-phone').value = '';
+  renderDriverBoard();
+  showToast('✅ Driver Added!');
+}
+
+function updateDriverStatus(id, status) {
+  drivers = drivers.map(d => d.id === id ? {...d, status} : d);
+  localStorage.setItem('ns_drivers', JSON.stringify(drivers));
+  renderDriverBoard();
+}
+
+function deleteDriver(id) {
+  drivers = drivers.filter(d => d.id !== id);
+  localStorage.setItem('ns_drivers', JSON.stringify(drivers));
+  renderDriverBoard();
+}
+
+function renderDriverBoard() {
+  const container = document.getElementById('driver-board');
+  if (!drivers.length) {
+    container.innerHTML = `<div class="empty"><div class="e-icon">👥</div><h3>No Drivers Yet</h3><p>Add your first driver above.</p></div>`;
+    return;
+  }
+
+  const statusOrder = {available:0, loaded:1, delivering:2, off:3};
+  const sorted = [...drivers].sort((a,b) => (statusOrder[a.status]||0) - (statusOrder[b.status]||0));
+
+  container.innerHTML = sorted.map(d => {
+    const initials = d.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const availStr = d.available ? new Date(d.available + 'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+    const statusLabels = {available:'Available', loaded:'Loaded — In Transit', delivering:'Delivering', off:'Off Duty'};
+    return `
+      <div class="driver-row ${d.status}">
+        <div class="driver-avatar" style="background:${d.color}">${initials}</div>
+        <div class="driver-info">
+          <div class="driver-name">${d.name}</div>
+          <div class="driver-details">
+            <span>🚛 ${d.equip}</span>
+            ${d.load ? `<span>📍 ${d.load}</span>` : ''}
+            ${availStr ? `<span>📅 Available ${availStr}</span>` : ''}
+            ${d.phone ? `<span>📱 ${d.phone}</span>` : ''}
+          </div>
+          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+            ${['available','loaded','delivering','off'].map(s => `
+              <button onclick="updateDriverStatus(${d.id},'${s}')" style="padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:${d.status===s?'var(--blue-dim)':'transparent'};color:${d.status===s?'var(--blue)':'var(--text-muted)'};font-size:10px;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;">${s}</button>
+            `).join('')}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+          <div class="status-badge ${d.status}">${statusLabels[d.status]||d.status}</div>
+          <button class="del-btn" onclick="deleteDriver(${d.id})">✕</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── DETENTION TRACKER ──
+function calcDetention() {
+  const type = document.getElementById('det-type').value;
+  const start = document.getElementById('det-start').value;
+  const end = document.getElementById('det-end').value;
+  const rate = parseFloat(document.getElementById('det-rate').value) || 0;
+  const freeHours = parseFloat(document.getElementById('det-free').value) || 2;
+
+  if (type !== 'detention') {
+    document.getElementById('det-calc').style.display = 'none';
+    return;
+  }
+
+  if (!start || !end) return;
+
+  const startMins = parseInt(start.split(':')[0]) * 60 + parseInt(start.split(':')[1]);
+  const endMins = parseInt(end.split(':')[0]) * 60 + parseInt(end.split(':')[1]);
+  let totalHours = Math.max(0, (endMins - startMins)) / 60;
+  const billableHours = Math.max(0, totalHours - freeHours);
+  const amount = billableHours * rate;
+
+  document.getElementById('det-calc').style.display = 'block';
+  document.getElementById('det-hours').textContent = totalHours.toFixed(1);
+  document.getElementById('det-billable').textContent = billableHours.toFixed(1);
+  document.getElementById('det-amount').textContent = fmt(amount);
+}
+
+function saveDetention() {
+  const load = document.getElementById('det-load').value || 'Load';
+  const driver = document.getElementById('det-driver').value || 'Driver';
+  const type = document.getElementById('det-type').value;
+  const rate = parseFloat(document.getElementById('det-rate').value) || 0;
+  const freeHours = parseFloat(document.getElementById('det-free').value) || 2;
+  const date = document.getElementById('det-date').value;
+
+  let amount = rate;
+  let meta = type;
+
+  if (type === 'detention') {
+    const start = document.getElementById('det-start').value;
+    const end = document.getElementById('det-end').value;
+    if (start && end) {
+      const startMins = parseInt(start.split(':')[0]) * 60 + parseInt(start.split(':')[1]);
+      const endMins = parseInt(end.split(':')[0]) * 60 + parseInt(end.split(':')[1]);
+      const totalHours = Math.max(0, (endMins - startMins)) / 60;
+      const billable = Math.max(0, totalHours - freeHours);
+      amount = billable * rate;
+      meta = `${billable.toFixed(1)} billable hrs @ ${fmt(rate)}/hr`;
+    }
+  }
+
+  const det = { id: Date.now(), load, driver, type, amount, meta, date, collected: false };
+  detentions.unshift(det);
+  localStorage.setItem('ns_detentions', JSON.stringify(detentions));
+  renderDetentionList();
+  showToast('✅ Accessorial Saved!', 'var(--yellow)');
+}
+
+function markCollected(id) {
+  detentions = detentions.map(d => d.id === id ? {...d, collected: !d.collected} : d);
+  localStorage.setItem('ns_detentions', JSON.stringify(detentions));
+  renderDetentionList();
+}
+
+function deleteDetention(id) {
+  detentions = detentions.filter(d => d.id !== id);
+  localStorage.setItem('ns_detentions', JSON.stringify(detentions));
+  renderDetentionList();
+}
+
+function renderDetentionList() {
+  const uncollected = detentions.filter(d => !d.collected);
+  const totalUncollected = uncollected.reduce((s,d) => s + d.amount, 0);
+  document.getElementById('det-total-display').textContent = fmt(totalUncollected);
+
+  const container = document.getElementById('det-list');
+  if (!detentions.length) {
+    container.innerHTML = `<div class="empty"><div class="e-icon">⏱️</div><h3>No Accessorials Logged</h3><p>Log your first detention or accessorial above.</p></div>`;
+    return;
+  }
+
+  container.innerHTML = detentions.map(d => {
+    const dateStr = d.date ? new Date(d.date + 'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+    const typeIcons = {detention:'⏱️',lumper:'💪',layover:'🌙',tonu:'❌',other:'📋'};
+    return `
+      <div class="det-row" style="${d.collected ? 'opacity:0.5;' : ''}">
+        <div class="det-info">
+          <div class="det-load">${typeIcons[d.type]||'📋'} ${d.load} — ${d.driver}</div>
+          <div class="det-meta">${d.meta}${dateStr ? ' · ' + dateStr : ''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="det-amount" style="${d.collected?'color:var(--green)':''}">${d.collected ? '✅ ' : ''}${fmt(d.amount)}</div>
+          <button onclick="markCollected(${d.id})" style="background:${d.collected?'var(--green-dim)':'var(--blue-dim)'};border:1px solid ${d.collected?'rgba(16,185,129,0.3)':'rgba(59,130,246,0.3)'};color:${d.collected?'var(--green)':'var(--blue)'};font-size:10px;padding:5px 8px;border-radius:6px;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;">${d.collected?'PAID':'COLLECT'}</button>
+          <button class="del-btn" onclick="deleteDetention(${d.id})">✕</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── LANE HISTORY ──
+function renderLanes() {
+  const container = document.getElementById('lane-list');
+  if (!lanes.length) {
+    document.getElementById('lane-stats').style.display = 'none';
+    container.innerHTML = `<div class="empty"><div class="e-icon">📊</div><h3>No Lane History Yet</h3><p>Save loads from the Load Splitter to build your intelligence database.</p></div>`;
+    return;
+  }
+
+  document.getElementById('lane-stats').style.display = 'block';
+  const totalVol = lanes.reduce((s,l) => s + l.rate, 0);
+  const avgRpm = lanes.reduce((s,l) => s + l.gpm, 0) / lanes.length;
+  const best = lanes.reduce((a,b) => a.rate > b.rate ? a : b);
+  document.getElementById('lane-count').textContent = lanes.length;
+  document.getElementById('lane-avg-rpm').textContent = '$' + avgRpm.toFixed(2);
+  document.getElementById('lane-best').textContent = fmt(best.rate);
+  document.getElementById('lane-volume').textContent = fmt(totalVol);
+
+  container.innerHTML = lanes.map(l => {
+    const dateStr = l.date ? new Date(l.date + 'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+    return `
+      <div class="lane-row">
+        <div class="lane-info">
+          <div class="lane-route">${l.origin} → ${l.dest}</div>
+          <div class="lane-meta">
+            <span>📍 ${l.miles.toLocaleString()} mi</span>
+            <span>💵 ${fmt(l.rate)} gross</span>
+            <span>💰 ${fmt(l.gpm,2)}/mi</span>
+            ${l.driver ? `<span>🚛 ${l.driver}</span>` : ''}
+            ${dateStr ? `<span>📅 ${dateStr}</span>` : ''}
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div>
+            <div class="lane-rate">${fmt(l.yourCut)}</div>
+            <div style="font-size:10px;color:var(--text-muted);">Your cut</div>
+          </div>
+          <button class="del-btn" onclick="deleteLane(${l.id})">✕</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function deleteLane(id) {
+  lanes = lanes.filter(l => l.id !== id);
+  localStorage.setItem('ns_lanes', JSON.stringify(lanes));
+  renderLanes();
+}
+
+function clearLanes() {
+  if (!confirm('Clear all lane history?')) return;
+  lanes = [];
+  localStorage.setItem('ns_lanes', JSON.stringify(lanes));
+  renderLanes();
+}
+
+// ── INVOICE GENERATOR ──
+function updateInvoice() {
+  const company = document.getElementById('inv-company').value || 'Your Company';
+  const number = document.getElementById('inv-number').value || '—';
+  const billto = document.getElementById('inv-billto').value || '—';
+  const date = document.getElementById('inv-date').value;
+  const origin = document.getElementById('inv-origin').value;
+  const dest = document.getElementById('inv-dest').value;
+  const driver = document.getElementById('inv-driver').value;
+  const rate = parseFloat(document.getElementById('inv-rate').value) || 0;
+  const detention = parseFloat(document.getElementById('inv-detention').value) || 0;
+  const lumper = parseFloat(document.getElementById('inv-lumper').value) || 0;
+  const other = parseFloat(document.getElementById('inv-other').value) || 0;
+  const terms = document.getElementById('inv-terms').value;
+  const total = rate + detention + lumper + other;
+
+  document.getElementById('inv-prev-company').textContent = company;
+  document.getElementById('inv-prev-number').textContent = '#' + number;
+  document.getElementById('inv-prev-billto').textContent = billto;
+  document.getElementById('inv-prev-date').textContent = date ? 'Date: ' + new Date(date + 'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : 'Date: —';
+  document.getElementById('inv-prev-route').textContent = origin && dest ? origin + ' → ' + dest : '—';
+  document.getElementById('inv-prev-driver').textContent = driver ? 'Driver: ' + driver : '';
+  document.getElementById('inv-prev-terms').textContent = terms;
+  document.getElementById('inv-prev-total').textContent = fmt(total, 2);
+
+  let lines = '';
+  if (rate > 0) lines += `<div class="invoice-line"><span class="il-label">Freight Charges</span><span class="il-value">${fmt(rate,2)}</span></div>`;
+  if (detention > 0) lines += `<div class="invoice-line"><span class="il-label">Detention</span><span class="il-value">${fmt(detention,2)}</span></div>`;
+  if (lumper > 0) lines += `<div class="invoice-line"><span class="il-label">Lumper Fee</span><span class="il-value">${fmt(lumper,2)}</span></div>`;
+  if (other > 0) lines += `<div class="invoice-line"><span class="il-label">Other Accessorial</span><span class="il-value">${fmt(other,2)}</span></div>`;
+  if (!lines) lines = `<div class="invoice-line"><span class="il-label">Freight Charges</span><span class="il-value">$0.00</span></div>`;
+  document.getElementById('inv-prev-lines').innerHTML = lines;
+}
+
+function copyInvoice() {
+  const company = document.getElementById('inv-company').value || 'Your Company';
+  const number = document.getElementById('inv-number').value;
+  const billto = document.getElementById('inv-billto').value;
+  const date = document.getElementById('inv-date').value;
+  const origin = document.getElementById('inv-origin').value;
+  const dest = document.getElementById('inv-dest').value;
+  const driver = document.getElementById('inv-driver').value;
+  const rate = parseFloat(document.getElementById('inv-rate').value) || 0;
+  const detention = parseFloat(document.getElementById('inv-detention').value) || 0;
+  const lumper = parseFloat(document.getElementById('inv-lumper').value) || 0;
+  const other = parseFloat(document.getElementById('inv-other').value) || 0;
+  const terms = document.getElementById('inv-terms').value;
+  const total = rate + detention + lumper + other;
+
+  const text = `FREIGHT INVOICE
+${company}
+${'─'.repeat(40)}
+Invoice #: ${number}
+Date: ${date}
+Bill To: ${billto}
+${origin && dest ? `Route: ${origin} → ${dest}` : ''}
+${driver ? `Driver: ${driver}` : ''}
+${'─'.repeat(40)}
+${rate > 0 ? `Freight Charges:    ${fmt(rate,2)}` : ''}
+${detention > 0 ? `Detention:          ${fmt(detention,2)}` : ''}
+${lumper > 0 ? `Lumper Fee:         ${fmt(lumper,2)}` : ''}
+${other > 0 ? `Other:              ${fmt(other,2)}` : ''}
+${'─'.repeat(40)}
+TOTAL DUE:          ${fmt(total,2)}
+${'─'.repeat(40)}
+Payment Terms: ${terms}
+Thank you for your business.
+Powered by North Star Dispatch Co-Pilot`;
+
+  navigator.clipboard.writeText(text).then(() => showToast('📋 Invoice Copied!', 'var(--blue)'));
+}
+
+function clearInvoice() {
+  ['inv-company','inv-billto','inv-origin','inv-dest','inv-driver'].forEach(id => document.getElementById(id).value = '');
+  ['inv-rate','inv-detention','inv-lumper','inv-other'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('inv-detention').value = 0;
+  document.getElementById('inv-lumper').value = 0;
+  document.getElementById('inv-other').value = 0;
+  document.getElementById('inv-number').value = 'INV-' + Date.now().toString().slice(-6);
+  document.getElementById('inv-date').valueAsDate = new Date();
+  updateInvoice();
+}
+
+// ── CARRIER CHECK ──
+function checkCarrier() {
+  const mc = document.getElementById('cc-mc').value;
+  const dot = document.getElementById('cc-dot').value;
+  const name = document.getElementById('cc-name').value || 'Unknown Carrier';
+  const age = parseInt(document.getElementById('cc-age').value) || 0;
+  const insurance = document.getElementById('cc-insurance').value;
+  const safety = document.getElementById('cc-safety').value;
+  const authority = document.getElementById('cc-authority').value;
+  const fraud = document.getElementById('cc-fraud').value;
+
+  let score = 100;
+  const flags = [];
+
+  if (authority !== 'active') { score -= 40; flags.push({type:'red', msg:'⛔ Authority is not active — do not use this carrier'}); }
+  if (insurance === 'no') { score -= 35; flags.push({type:'red', msg:'⛔ Insurance not verified — do not tender freight'}); }
+  if (insurance === 'pending') { score -= 15; flags.push({type:'yellow', msg:'⚠️ Insurance pending — verify before tendering'}); }
+  if (safety === 'unsatisfactory') { score -= 30; flags.push({type:'red', msg:'⛔ Unsatisfactory safety rating — high risk carrier'}); }
+  if (safety === 'conditional') { score -= 15; flags.push({type:'yellow', msg:'⚠️ Conditional safety rating — review CSA scores'}); }
+  if (age < 6 && authority === 'active') { score -= 20; flags.push({type:'yellow', msg:'⚠️ Authority under 6 months old — new carrier, use caution'}); }
+  if (age < 12 && age >= 6) { score -= 8; flags.push({type:'yellow', msg:'⚠️ Authority under 12 months — limited track record'}); }
+  if (fraud === 'reported') { score -= 40; flags.push({type:'red', msg:'🚨 Reported fraud issues — do not use this carrier'}); }
+  if (fraud === 'new') { score -= 10; flags.push({type:'yellow', msg:'⚠️ Very new authority — increased double-broker risk'}); }
+
+  score = Math.max(0, score);
+
+  let vClass, vTitle, vSub, badgeClass, badgeText;
+  if (score >= 75) { vClass='green'; vTitle='Low Risk'; vSub='Carrier appears legitimate. Standard onboarding procedures.'; badgeClass='available'; badgeText='✅ APPROVED'; }
+  else if (score >= 45) { vClass='yellow'; vTitle='Medium Risk — Use Caution'; vSub='Review flagged items before tendering freight.'; badgeClass='delivering'; badgeText='⚠️ REVIEW'; }
+  else { vClass='red'; vTitle='High Risk — Do Not Use'; vSub='Multiple red flags detected. Do not tender freight to this carrier.'; badgeClass='off'; badgeText='❌ REJECTED'; }
+
+  document.getElementById('carrier-result').style.display = 'block';
+  document.getElementById('cc-verdict-box').className = 'carrier-verdict ' + vClass;
+  document.getElementById('cc-score').textContent = score;
+  document.getElementById('cc-verdict-title').textContent = vTitle;
+  document.getElementById('cc-verdict-sub').textContent = vSub;
+  document.getElementById('cc-verdict-badge').className = 'status-badge ' + badgeClass;
+  document.getElementById('cc-verdict-badge').textContent = badgeText;
+
+  document.getElementById('cc-r-name').textContent = name;
+  document.getElementById('cc-r-mc').textContent = mc || '—';
+  document.getElementById('cc-r-dot').textContent = dot || '—';
+  document.getElementById('cc-r-age').textContent = age ? `${age} months` : '—';
+  document.getElementById('cc-r-auth').textContent = authority;
+  document.getElementById('cc-r-auth').style.color = authority === 'active' ? 'var(--green)' : 'var(--red)';
+  document.getElementById('cc-r-ins').textContent = insurance;
+  document.getElementById('cc-r-ins').style.color = insurance === 'yes' ? 'var(--green)' : insurance === 'pending' ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('cc-r-safety').textContent = safety;
+  document.getElementById('cc-r-safety').style.color = safety === 'satisfactory' ? 'var(--green)' : safety === 'conditional' ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('cc-r-score').textContent = score + ' / 100';
+  document.getElementById('cc-r-score').style.color = score >= 75 ? 'var(--green)' : score >= 45 ? 'var(--yellow)' : 'var(--red)';
+
+  const flagsEl = document.getElementById('cc-flags-list');
+  if (flags.length) {
+    flagsEl.innerHTML = flags.map(f => `
+      <div style="display:flex;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:6px;background:${f.type==='red'?'var(--red-dim)':'var(--yellow-dim)'};border:1px solid ${f.type==='red'?'rgba(239,68,68,0.3)':'rgba(245,158,11,0.3)'};">
+        <span style="font-size:13px;color:${f.type==='red'?'var(--red)':'var(--yellow)'};">${f.msg}</span>
+      </div>
+    `).join('');
+  } else {
+    flagsEl.innerHTML = `<div style="padding:10px 12px;border-radius:8px;background:var(--green-dim);border:1px solid rgba(16,185,129,0.3);font-size:13px;color:var(--green);">✅ No red flags detected on this carrier.</div>`;
+  }
+}
+
+function saveCarrierCheck() {
+  const name = document.getElementById('cc-name').value || 'Unknown';
+  const mc = document.getElementById('cc-mc').value;
+  const score = document.getElementById('cc-r-score').textContent;
+  const verdict = document.getElementById('cc-verdict-title').textContent;
+  const date = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  carriers.unshift({ id: Date.now(), name, mc, score, verdict, date });
+  localStorage.setItem('ns_carriers', JSON.stringify(carriers));
+  renderCarrierLog();
+  showToast('✅ Carrier Saved!');
+}
+
+function renderCarrierLog() {
+  const container = document.getElementById('carrier-log');
+  if (!carriers.length) {
+    container.innerHTML = `<div class="empty" style="padding:20px;"><div class="e-icon">🔍</div><h3>No Carriers Saved</h3><p>Run a check and save it.</p></div>`;
+    return;
+  }
+  container.innerHTML = carriers.map(c => {
+    const isGood = c.verdict.includes('Low');
+    const isBad = c.verdict.includes('High');
+    return `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--panel);border-radius:8px;margin-bottom:8px;border:1px solid var(--border);">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text);">${c.name}</div>
+          <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">${c.mc ? 'MC: ' + c.mc + ' · ' : ''}${c.date}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:${isGood?'var(--green)':isBad?'var(--red)':'var(--yellow)'};">${c.score}</div>
+          <button class="del-btn" onclick="deleteCarrier(${c.id})">✕</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function deleteCarrier(id) {
+  carriers = carriers.filter(c => c.id !== id);
+  localStorage.setItem('ns_carriers', JSON.stringify(carriers));
+  renderCarrierLog();
+}
+
+function clearCarriers() {
+  if (!confirm('Clear carrier log?')) return;
+  carriers = [];
+  localStorage.setItem('ns_carriers', JSON.stringify(carriers));
+  renderCarrierLog();
+}
+
+// ── DASHBOARD ──
+function renderDashboard() {
+  const totalVol = lanes.reduce((s,l) => s + l.rate, 0);
+  const totalEarnings = lanes.reduce((s,l) => s + l.yourCut, 0);
+  const uncollected = detentions.filter(d => !d.collected).reduce((s,d) => s + d.amount, 0);
+
+  document.getElementById('dash-loads').textContent = lanes.length;
+  document.getElementById('dash-volume').textContent = fmt(totalVol);
+  document.getElementById('dash-earnings').textContent = fmt(totalEarnings);
+  document.getElementById('dash-uncollected').textContent = fmt(uncollected);
+  document.getElementById('dash-drivers').textContent = drivers.length;
+  document.getElementById('dash-carriers').textContent = carriers.length;
+
+  // Driver summary
+  const driverSummary = document.getElementById('dash-driver-summary');
+  if (!drivers.length) {
+    driverSummary.innerHTML = `<div class="empty" style="padding:20px;"><div class="e-icon">👥</div><h3>No Drivers</h3><p>Add drivers in the Driver Board tab.</p></div>`;
+  } else {
+    const statusLabels = {available:'✅ Available',loaded:'🔵 Loaded',delivering:'🟡 Delivering',off:'⚫ Off Duty'};
+    driverSummary.innerHTML = drivers.slice(0,5).map(d => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--panel);border-radius:8px;margin-bottom:6px;border:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:${d.color};display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:white;">${d.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}</div>
+          <div>
+            <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;">${d.name}</div>
+            <div style="font-size:11px;color:var(--text-secondary);">${d.equip}${d.load ? ' · ' + d.load : ''}</div>
+          </div>
+        </div>
+        <div class="status-badge ${d.status}">${statusLabels[d.status]||d.status}</div>
+      </div>
+    `).join('') + (drivers.length > 5 ? `<div style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:8px;">+${drivers.length-5} more in Driver Board tab</div>` : '');
+  }
+
+  // Top lanes
+  const topLanes = document.getElementById('dash-top-lanes');
+  if (!lanes.length) {
+    topLanes.innerHTML = `<div class="empty" style="padding:20px;"><div class="e-icon">📊</div><h3>No Lane Data</h3><p>Save loads from Load Splitter.</p></div>`;
+  } else {
+    const sorted = [...lanes].sort((a,b) => b.yourCut - a.yourCut).slice(0,5);
+    topLanes.innerHTML = sorted.map(l => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--panel);border-radius:8px;margin-bottom:6px;border:1px solid var(--border);">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;">${l.origin} → ${l.dest}</div>
+          <div style="font-size:11px;color:var(--text-secondary);">${fmt(l.rate)} gross · ${fmt(l.gpm,2)}/mi</div>
+        </div>
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--green);">${fmt(l.yourCut)}</div>
+      </div>
+    `).join('');
+  }
+}
+
+// ── INIT ──
+updateInvoice();
+renderDriverBoard();
+renderDetentionList();
+renderLanes();
+renderCarrierLog();
+calcSplit();
+</script>
+</body>
+</html>
